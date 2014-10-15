@@ -1,0 +1,16 @@
+{
+  "name": "meshblu-myo",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node command.js"
+  },
+  "dependencies": {
+    "lodash": "^2.4.1",
+    "skynet": "^1.1.1",
+    "ws": "^0.4.32"
+  },
+  "keywords": [
+    "meshblu-connector",
+    "gateblu"
+  ]
+}

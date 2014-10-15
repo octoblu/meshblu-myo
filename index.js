@@ -22,7 +22,12 @@ var OPTIONS_SCHEMA = {
       required: true,
       default: '127.0.0.1'
     },
-    orientationBroadcastInterval: {
+    broadcastOrientation: {
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    broadcastOrientationInterval: {
       type: 'string',
       required: true,
       default: 500
@@ -31,7 +36,7 @@ var OPTIONS_SCHEMA = {
 };
 
 function Plugin(){
-  this.setOptions({ipAddress: '127.0.0.1', orientationBroadcastInterval: 500});
+  this.setOptions({ipAddress: '127.0.0.1', broadcastOrientationInterval: 500, broadcastOrientation: false});
   this.messageSchema = MESSAGE_SCHEMA;
   this.optionsSchema = OPTIONS_SCHEMA;
   return this;
@@ -56,15 +61,19 @@ Plugin.prototype.setupMyo = function() {
     return;
   }
 
-  var throttledEmit = _.throttle(self.emit, self.options.orientationBroadcastInterval);
-  
+  var throttledEmit = _.throttle(function(){
+    self.emit.apply(self, arguments);
+  }, self.options.broadcastOrientationInterval);
+
   self._myo = new WebSocket('ws://' + self.options.ipAddress + ':10138/myo/1');
   self._myo.on('message', function(message) {
     var emitFunction, data;
-    data         = _.last(JSON.parse(message));
+    data = _.last(JSON.parse(message));
 
     if (data.type === 'orientation') {
-      throttledEmit('data', data);
+      if (self.options.broadcastOrientation) {
+        throttledEmit('data', data);
+      }
       return;
     }
     self.emit('data', data);

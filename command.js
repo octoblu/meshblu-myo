@@ -41,7 +41,6 @@ plugin.on('message', function(message){
 });
 
 plugin.on('data', function(data){
-  console.log('emitting', data);
   conx.data(data);
 });
 

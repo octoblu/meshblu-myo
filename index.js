@@ -45,6 +45,7 @@ util.inherits(Plugin, EventEmitter);
 
 Plugin.prototype.onMessage = function(message){
   var payload = message.payload;
+  this._myo.send(JSON.stringify(['command', payload]));
 };
 
 Plugin.prototype.setOptions = function(options){

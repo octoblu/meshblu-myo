@@ -48,12 +48,15 @@ Plugin.prototype.onMessage = function(message){
   this._myo.send(JSON.stringify(['command', payload]));
 };
 
+Plugin.prototype.onMessage = function(device){
+  self.setOptions(device.options||{});
+};
+
 Plugin.prototype.setOptions = function(options){
   this.options = options;
 
   this.setupMyo();
 };
-
 
 Plugin.prototype.setupMyo = function() {
   var self = this;
@@ -79,7 +82,7 @@ Plugin.prototype.setupMyo = function() {
     }
     self.emit('data', data);
   }); 
-}
+};
 
 module.exports = {
   messageSchema: MESSAGE_SCHEMA,

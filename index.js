@@ -69,7 +69,7 @@ Plugin.prototype.setupMyo = function() {
     self.emit.apply(self, arguments);
   }, self.options.broadcastOrientationInterval);
 
-  self._myo = new WebSocket('ws://' + self.options.ipAddress + ':10138/myo/1');
+  self._myo = new WebSocket('ws://' + self.options.ipAddress + ':10138/myo/2');
   self._myo.on('message', function(message) {
     var emitFunction, data;
     data = _.last(JSON.parse(message));
@@ -81,7 +81,7 @@ Plugin.prototype.setupMyo = function() {
       return;
     }
     self.emit('data', data);
-  }); 
+  });
 };
 
 module.exports = {

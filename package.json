@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "lodash": "^2.4.1",
-    "skynet": "^1.1.1",
+    "meshblu": "^1.8.3",
     "ws": "^0.4.32"
   },
   "keywords": [

@@ -48,7 +48,8 @@ Plugin.prototype.onMessage = function(message){
   this._myo.send(JSON.stringify(['command', payload]));
 };
 
-Plugin.prototype.onMessage = function(device){
+Plugin.prototype.onConfig = function(device){
+  var self = this;
   self.setOptions(device.options||{});
 };
 
@@ -69,7 +70,7 @@ Plugin.prototype.setupMyo = function() {
     self.emit.apply(self, arguments);
   }, self.options.broadcastOrientationInterval);
 
-  self._myo = new WebSocket('ws://' + self.options.ipAddress + ':10138/myo/2');
+  self._myo = new WebSocket('ws://' + self.options.ipAddress + ':10138/myo/3');
   self._myo.on('message', function(message) {
     var emitFunction, data;
     data = _.last(JSON.parse(message));

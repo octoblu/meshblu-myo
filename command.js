@@ -1,6 +1,6 @@
 'use strict';
 var Plugin = require('./index').Plugin;
-var skynet = require('skynet');
+var skynet = require('meshblu');
 var config = require('./meshblu.json');
 
 var conx = skynet.createConnection({

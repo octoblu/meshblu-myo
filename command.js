@@ -51,7 +51,6 @@ plugin.on('message', function(message){
 });
 
 plugin.on('data', function(data){
-  console.log(data);
   conx.data(data);
 });
 

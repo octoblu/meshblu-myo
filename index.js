@@ -30,7 +30,7 @@ var MESSAGE_SCHEMA = {
      properties : {
        action : {
          type : 'string',
-         enum : ['vibrate', 'requestBlueToothStrength'],
+         enum : ['vibrate', 'requestBlueToothStrength', 'zeroOrientation'],
          default : 'vibrate'
        },
        vibrationLength : {
@@ -115,6 +115,8 @@ Plugin.prototype.onMessage = function(message){
       this._myo.vibrate(message.vibrationLength);
     } else if(message.action === 'requestBluetoothStrength'){
       this._myo.requestBluetoothStrength();
+    } else if(message.action === 'zeroOrientation'){
+      this._myo.zeroOrientation();
     }
   }
 };

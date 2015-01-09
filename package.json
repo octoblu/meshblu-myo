@@ -1,6 +1,6 @@
 {
   "name": "meshblu-myo",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "scripts": {
     "start": "node command.js"
   },

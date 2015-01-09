@@ -6,24 +6,19 @@ var Myo = require('myo');
 
 var DEFAULT_OPTIONS = {
   id : 0,
-  broadcast : {
+  interval: 500,
     accelerometer: {
-      enabled : false,
-      interval : 500
+      enabled : false
     },
-    IMU: {
-      enabled : false,
-      interval : 500
+    imu: {
+      enabled : false
     },
     gyroscope: {
-      enabled : false,
-      interval : 500
+      enabled : false
     },
     orientation: {
-      enabled: false,
-      interval: 500
+      enabled: false
     }
-  }
 };
 
 var MESSAGE_SCHEMA = {

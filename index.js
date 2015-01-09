@@ -1,24 +1,24 @@
 'use strict';
 var util = require('util');
-var EventEmitter = require('datas').EventEmitter;
+var EventEmitter = require('events').EventEmitter;
 var _ = require('lodash');
 var Myo = require('myo');
 
 var DEFAULT_OPTIONS = {
   id : 0,
   interval: 500,
-    accelerometer: {
-      enabled : false
-    },
-    imu: {
-      enabled : false
-    },
-    gyroscope: {
-      enabled : false
-    },
-    orientation: {
-      enabled: false
-    }
+  accelerometer: {
+    enabled : false
+  },
+  imu: {
+    enabled : false
+  },
+  gyroscope: {
+    enabled : false
+  },
+  orientation: {
+    enabled: false
+  }
 };
 
 var MESSAGE_SCHEMA = {
@@ -103,6 +103,7 @@ function Plugin(){
   this.setOptions(DEFAULT_OPTIONS);
   this.messageSchema = MESSAGE_SCHEMA;
   this.optionsSchema = OPTIONS_SCHEMA;
+  this.defaultOptions = DEFAULT_OPTIONS;
   return this;
 }
 util.inherits(Plugin, EventEmitter);
@@ -119,7 +120,7 @@ Plugin.prototype.onMessage = function(message){
 
 Plugin.prototype.onConfig = function(device){
   var self = this;
-  self.setOptions(device.options||{});
+  self.setOptions(device.options||DEFAULT_OPTIONS);
 };
 
 Plugin.prototype.setOptions = function(options){
@@ -131,8 +132,11 @@ Plugin.prototype.setupMyo = function() {
   var self = this;
 
   var myoId = self.options.id || 0;
-  self._myo = Myo.create(myoId);
-  self._myo.initSocket();
+  var myoOptions =  {
+      api_version : 3,
+      socket_url  : "ws://127.0.0.1:10138/myo/"
+    };
+  self._myo = Myo.create(myoId, myoOptions);
   self._myo.unlock();
 
   var throttledEmit = _.throttle(function(){
@@ -141,6 +145,7 @@ Plugin.prototype.setupMyo = function() {
 
 
   self._myo.on('connected', function(){
+    self._myo.vibrate('long');
     throttledEmit('data', {
       event : 'connected'
     });
@@ -165,11 +170,13 @@ Plugin.prototype.setupMyo = function() {
     });
   })
 
-  self._myo.on('rest', function(data){
+  self._myo.on('lock', function(data){
+    self._myo.vibrate('short');
     throttledEmit('data', data);
   });
 
-  self._myo.on('rest', function(data){
+  self._myo.on('unlock', function(data){
+    self._myo.vibrate('short').vibrate('short');
     throttledEmit('data', data);
   });
 
@@ -183,9 +190,6 @@ Plugin.prototype.setupMyo = function() {
     }
   });
 
-  self._myo.on('rest', function(data){
-    throttledEmit('data', data);
-  });
 
   self._myo.on('fingers_spread', function(data){
     throttledEmit('data', data);

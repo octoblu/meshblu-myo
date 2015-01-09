@@ -3,6 +3,7 @@ var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var _ = require('lodash');
 var Myo = require('myo');
+var debug = require('debug')('meshblu-myo:index');
 
 var DEFAULT_OPTIONS = {
   id : 0,
@@ -124,7 +125,7 @@ Plugin.prototype.onConfig = function(device){
 };
 
 Plugin.prototype.setOptions = function(options){
-  this.options = options;
+  this.options = _.extend({}, DEFAULT_OPTIONS, options);
   this.setupMyo();
 };
 
@@ -135,96 +136,90 @@ Plugin.prototype.setupMyo = function() {
   var myoOptions =  {
       api_version : 3,
       socket_url  : "ws://127.0.0.1:10138/myo/"
-    };
+  };
   self._myo = Myo.create(myoId, myoOptions);
-  self._myo.unlock();
 
   var throttledEmit = _.throttle(function(){
     self.emit.apply(self, arguments);
   }, self.options.interval);
 
-
   self._myo.on('connected', function(){
+    debug('We are connected to Myo, ', this.id);
     self._myo.vibrate('long');
     self.emit('data', {
       event : 'connected'
     });
-
   })
 
   self._myo.on('disconnected', function(){
+    debug('We are disconnected from Myo');
     self.emit('data', {
       event : 'disconnected'
     });
   })
 
   self._myo.on('arm_synced', function(){
+    debug('Arm Synced');
     self.emit('data', {
       event : 'arm_synced'
     });
   });
 
   self._myo.on('arm_unsynced', function(){
+    debug('Arm arm_unsynced');
     self.emit('data', {
       event : 'arm_unsynced'
     });
   });
 
   self._myo.on('lock', function(data){
+    debug('Locked Myo');
     self._myo.vibrate('short');
     self.emit('data', data);
   });
 
   self._myo.on('unlock', function(data){
-    self._myo.vibrate('short').vibrate('short');
+    debug('Unlocked Myo');
+    // self._myo.vibrate('short').vibrate('short');
     self.emit('data', data);
   });
 
-  self._myo.on('rest', function(data){
-    self.emit('data', data);
-  });
-
-  self._myo.on('accelerometer', function(data){
-    if(self.options.accelerometer.enabled){
+  if(self.options.accelerometer.enabled){
+    self._myo.on('accelerometer', function(data){
+      debug('Sending accelerometer data');
       throttledEmit('data', data);
+    });
+  }
+
+  if(self.options.gyroscope.enabled){
+    self._myo.on('gyroscope', function(data){
+        throttledEmit('data', data);
+    });
+  }
+
+  if(self.options.orientation.enabled){
+    self._myo.on('orientation', function(data){
+        throttledEmit('data', data);
+    });
+  }
+  if(self.options.imu.enabled){
+    self._myo.on('imu', function(data){
+        throttledEmit(self.emit('data', data));
+    });
+  }
+
+  self._myo.on('pose', function(poseName, edge){
+    if(!self._myo.isLocked && edge){
+      self._myo.unlock(5000);
     }
-  });
-
-
-  self._myo.on('fingers_spread', function(data){
-    self.emit('data', data);
-  });
-
-  self._myo.on('wave_in', function(data){
-    self.emit('data', data);
-  });
-
-  self._myo.on('wave_out', function(data){
-    self.emit('data', data);
-  });
-
-  self._myo.on('fist', function(data){
-    self.emit('data', data);
-  });
-
-  self._myo.on('thumb_to_pinky', function(data){
-    self.emit('data', data);
-  });
-
-  self._myo.on('gyroscope', function(data){
-    if(self.options.gyroscope.enabled){
-      throttledEmit('data', data);
+    if(!edge){
+      return;
     }
-  });
-  self._myo.on('orientation', function(data){
-    if(self.options.orientation.enabled){
-      throttledEmit('data', data);
-    }
-  });
-  self._myo.on('imu', function(data){
-    if(self.options.imu.enabled){
-      throttledEmit(self.emit('data', data));
-    }
+    debug('Pose', poseName, edge);
+    self.emit('data', {
+      pose : poseName,
+      edge : edge
+    });
   });
 
   self._myo.on('bluetooth_strength', function(val){

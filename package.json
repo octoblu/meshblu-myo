@@ -1,14 +1,15 @@
 {
   "name": "meshblu-myo",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "scripts": {
     "start": "node command.js"
   },
   "dependencies": {
+    "debug": "^2.1.1",
     "lodash": "^2.4.1",
     "meshblu": "^1.8.3",
-    "myo" : "^1.2.0"
-   },
+    "myo": "git://github.com/BrianHeese/myo.js.git#c8077ab8d944e5f679c37d670049c46a264ce5b7"
+  },
   "keywords": [
     "meshblu-connector",
     "gateblu"

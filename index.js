@@ -228,12 +228,6 @@ Plugin.prototype.setupMyo = function() {
     }
   });
 
-  self._myo.on('imu', function(data){
-    if(self.options.IMU.enabled){
-      throttledEmit(self.emit('data', data));
-    }
-  });
-
   self._myo.on('bluetooth_strength', function(val){
     throttledEmit(self.emit('data', {bluetoothStrength : val}));
   });

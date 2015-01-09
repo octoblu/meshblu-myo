@@ -140,11 +140,13 @@ Plugin.prototype.setupMyo = function() {
   self._myo = Myo.create(myoId, myoOptions);
 
   var throttledEmit = _.throttle(function(){
+    debug('throttled', arguments);
     self.emit.apply(self, arguments);
   }, self.options.interval);
 
   self._myo.on('connected', function(){
     debug('We are connected to Myo, ', this.id);
+    self._myo.unlock();
     self._myo.vibrate('long');
     self.emit('data', {
       event : 'connected'
@@ -186,32 +188,29 @@ Plugin.prototype.setupMyo = function() {
 
   if(self.options.accelerometer.enabled){
     self._myo.on('accelerometer', function(data){
-      debug('Sending accelerometer data');
-      throttledEmit('data', data);
+      throttledEmit('data', {accelerometer: data});
     });
   }
 
   if(self.options.gyroscope.enabled){
     self._myo.on('gyroscope', function(data){
-        throttledEmit('data', data);
+      throttledEmit('data', {gyroscope: data});
     });
   }
 
   if(self.options.orientation.enabled){
     self._myo.on('orientation', function(data){
-        throttledEmit('data', data);
+      throttledEmit('data', {orientation: data});
     });
   }
   if(self.options.imu.enabled){
     self._myo.on('imu', function(data){
-        throttledEmit(self.emit('data', data));
+      throttledEmit(self.emit('data', {imu: data}));
     });
   }
 
   self._myo.on('pose', function(poseName, edge){
-    if(!self._myo.isLocked && edge){
-      self._myo.unlock(5000);
-    }
+    self._myo.unlock(5000);
     if(!edge){
       return;
     }

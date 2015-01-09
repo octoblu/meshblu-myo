@@ -71,7 +71,7 @@ var OPTIONS_SCHEMA = {
         }
       }
     },
-    IMU : {
+    imu : {
       type : 'object',
       properties : {
         enabled : {
@@ -223,7 +223,7 @@ Plugin.prototype.setupMyo = function() {
     }
   });
   self._myo.on('imu', function(data){
-    if(self.options.IMU.enabled){
+    if(self.options.imu.enabled){
       throttledEmit(self.emit('data', data));
     }
   });

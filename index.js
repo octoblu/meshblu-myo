@@ -146,42 +146,42 @@ Plugin.prototype.setupMyo = function() {
 
   self._myo.on('connected', function(){
     self._myo.vibrate('long');
-    throttledEmit('data', {
+    self.emit('data', {
       event : 'connected'
     });
 
   })
 
   self._myo.on('disconnected', function(){
-    throttledEmit('data', {
+    self.emit('data', {
       event : 'disconnected'
     });
   })
 
   self._myo.on('arm_synced', function(){
-    throttledEmit('data', {
+    self.emit('data', {
       event : 'arm_synced'
     });
-  })
+  });
 
   self._myo.on('arm_unsynced', function(){
-    throttledEmit('data', {
+    self.emit('data', {
       event : 'arm_unsynced'
     });
-  })
+  });
 
   self._myo.on('lock', function(data){
     self._myo.vibrate('short');
-    throttledEmit('data', data);
+    self.emit('data', data);
   });
 
   self._myo.on('unlock', function(data){
     self._myo.vibrate('short').vibrate('short');
-    throttledEmit('data', data);
+    self.emit('data', data);
   });
 
   self._myo.on('rest', function(data){
-    throttledEmit('data', data);
+    self.emit('data', data);
   });
 
   self._myo.on('accelerometer', function(data){
@@ -192,23 +192,23 @@ Plugin.prototype.setupMyo = function() {
 
 
   self._myo.on('fingers_spread', function(data){
-    throttledEmit('data', data);
+    self.emit('data', data);
   });
 
   self._myo.on('wave_in', function(data){
-    throttledEmit('data', data);
+    self.emit('data', data);
   });
 
   self._myo.on('wave_out', function(data){
-    throttledEmit('data', data);
+    self.emit('data', data);
   });
 
   self._myo.on('fist', function(data){
-    throttledEmit('data', data);
+    self.emit('data', data);
   });
 
   self._myo.on('thumb_to_pinky', function(data){
-    throttledEmit('data', data);
+    self.emit('data', data);
   });
 
   self._myo.on('gyroscope', function(data){
@@ -228,7 +228,7 @@ Plugin.prototype.setupMyo = function() {
   });
 
   self._myo.on('bluetooth_strength', function(val){
-    throttledEmit(self.emit('data', {bluetoothStrength : val}));
+    self.emit('data', {bluetoothStrength : val});
   });
 
 };

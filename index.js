@@ -205,6 +205,11 @@ Plugin.prototype.setupMyo = function() {
 
   if(self.options.orientation.enabled){
     self._myo.on('orientation', function(data){
+      var offset = self._myo.orientationOffset;
+      data.w += offset.w;
+      data.x += offset.x;
+      data.y += offset.y;
+      data.z += offset.z;
       throttledEmit('data', {orientation: data});
     });
   }

@@ -111,12 +111,15 @@ util.inherits(Plugin, EventEmitter);
 
 Plugin.prototype.onMessage = function(message){
   if(Myo.myos && this._myo){
-    if(message.action === 'vibrate'){
-      this._myo.vibrate(message.vibrationLength);
-    } else if(message.action === 'requestBluetoothStrength'){
-      this._myo.requestBluetoothStrength();
-    } else if(message.action === 'zeroOrientation'){
-      this._myo.zeroOrientation();
+    if (message.command && message.command.action) {
+      var action = message.command.action
+      if(action === 'vibrate'){
+        this._myo.vibrate(message.command.vibrationLength);
+      } else if(action === 'requestBluetoothStrength'){
+        this._myo.requestBluetoothStrength();
+      } else if(action === 'zeroOrientation'){
+        this._myo.zeroOrientation();
+      }
     }
   }
 };

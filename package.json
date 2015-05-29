@@ -1,17 +1,35 @@
 {
   "name": "meshblu-myo",
-  "version": "2.1.8",
+  "version": "2.2.0",
   "scripts": {
-    "start": "node command.js"
+    "preinstall": "node -e \"try{require('./skip-install.js')}catch(e){}\"",
+    "start": "node command.js",
+    "test": "exit 0"
   },
   "dependencies": {
     "debug": "^2.1.1",
-    "lodash": "^2.4.1",
-    "meshblu": "^1.9.0",
+    "lodash": "^3.9.3",
+    "meshblu": "^1.22.0",
     "myo": "git://github.com/BrianHeese/myo.js.git#c8077ab8d944e5f679c37d670049c46a264ce5b7"
   },
   "keywords": [
     "meshblu-connector",
-    "gateblu"
-  ]
+    "gateblu",
+    "myo"
+  ],
+  "bundledDependencies": [
+    "request",
+    "tar",
+    "fstream"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/octoblu/meshblu-myo.git"
+  },
+  "author": "Octoblu, Inc. <sqrt@octoblu.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/octoblu/meshblu-myo/issues"
+  },
+  "homepage": "https://github.com/octoblu/meshblu-myo"
 }

@@ -153,53 +153,81 @@ Plugin.prototype.setupMyo = function() {
     debug('We are connected to Myo, ', this.id);
     self._myo.unlock();
     self._myo.vibrate('long');
-    self.emit('data', {
-      event : 'connected'
+    throttledEmit('message', {
+      devices: ['*'],
+      payload: {
+        event : 'connected'
+      }
     });
   })
 
   self._myo.on('disconnected', function(){
     debug('We are disconnected from Myo');
-    self.emit('data', {
-      event : 'disconnected'
+    throttledEmit('message', {
+      devices: ['*'],
+      payload: {
+        event : 'disconnected'
+      }
     });
   })
 
   self._myo.on('arm_synced', function(){
     debug('Arm Synced');
-    self.emit('data', {
-      event : 'arm_synced'
+    throttledEmit('message', {
+      devices: ['*'],
+      payload: {
+        event : 'arm_synced'
+      }
     });
   });
 
   self._myo.on('arm_unsynced', function(){
     debug('Arm arm_unsynced');
-    self.emit('data', {
-      event : 'arm_unsynced'
+    throttledEmit('message', {
+      devices: ['*'],
+      payload: {
+        event : 'arm_unsynced'
+      }
     });
   });
 
   self._myo.on('lock', function(data){
     debug('Locked Myo');
     self._myo.vibrate('short');
-    self.emit('data', data);
+    throttledEmit('message', {
+      devices: ['*'],
+      payload: data
+    });
   });
 
   self._myo.on('unlock', function(data){
     debug('Unlocked Myo');
     // self._myo.vibrate('short').vibrate('short');
-    self.emit('data', data);
+    throttledEmit('message', {
+      devices: ['*'],
+      payload: data
+    });
   });
 
   if(self.options.accelerometer.enabled){
     self._myo.on('accelerometer', function(data){
-      throttledEmit('data', {accelerometer: data});
+      throttledEmit('message', {
+        devices: ['*'],
+        payload: {
+          accelerometer: data
+        }
+      });
     });
   }
 
   if(self.options.gyroscope.enabled){
     self._myo.on('gyroscope', function(data){
-      throttledEmit('data', {gyroscope: data});
+      throttledEmit('message', {
+        devices: ['*'],
+        payload: {
+          gyroscope: data
+        }
+      });
     });
   }
 
@@ -210,12 +238,23 @@ Plugin.prototype.setupMyo = function() {
       data.x += offset.x;
       data.y += offset.y;
       data.z += offset.z;
-      throttledEmit('data', {orientation: data});
+      throttledEmit('message', {
+        devices: ['*'],
+        payload: {
+          orientation: data
+        }
+      });
     });
   }
+
   if(self.options.imu.enabled){
     self._myo.on('imu', function(data){
-      throttledEmit(self.emit('data', {imu: data}));
+      throttledEmit('message', {
+        devices: ['*'],
+        payload: {
+          imu: data
+        }
+      });
     });
   }
 
@@ -225,14 +264,22 @@ Plugin.prototype.setupMyo = function() {
       return;
     }
     debug('Pose', poseName, edge);
-    self.emit('data', {
-      pose : poseName,
-      edge : edge
+    throttledEmit('message', {
+      devices: ['*'],
+      payload: {
+        pose : poseName,
+        edge : edge
+      }
     });
   });
 
   self._myo.on('bluetooth_strength', function(val){
-    self.emit('data', {bluetoothStrength : val});
+    throttledEmit('message', {
+      devices: ['*'],
+      payload: {
+        bluetoothStrength : val
+      }
+    });
   });
 
 };

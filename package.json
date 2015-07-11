@@ -1,6 +1,6 @@
 {
   "name": "meshblu-myo",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "scripts": {
     "preinstall": "node -e \"try{require('./skip-install.js')}catch(e){}\"",
     "start": "node command.js",
@@ -10,7 +10,7 @@
     "debug": "^2.1.1",
     "lodash": "^3.9.3",
     "meshblu": "^1.22.0",
-    "myo": "git://github.com/BrianHeese/myo.js.git#c8077ab8d944e5f679c37d670049c46a264ce5b7"
+    "myo": "^1.5.0"
   },
   "keywords": [
     "meshblu-connector",

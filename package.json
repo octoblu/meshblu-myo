@@ -1,6 +1,6 @@
 {
   "name": "meshblu-myo",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "scripts": {
     "preinstall": "node -e \"try{require('./skip-install.js')}catch(e){}\"",
     "start": "node command.js",
@@ -9,7 +9,7 @@
   "dependencies": {
     "debug": "^2.1.1",
     "lodash": "^3.9.3",
-    "meshblu": "^1.22.0",
+    "meshblu": "^1.30.0",
     "myo": "^1.5.0"
   },
   "keywords": [

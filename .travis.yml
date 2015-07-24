@@ -3,7 +3,7 @@ language: node_js
 cache:
   bundler: true
   directories:
-    - node_modules
+  - node_modules
 notifications:
   flowdock: e7454f5285e7b9ab67009802d5560490
 node_js:
@@ -14,7 +14,7 @@ deploy:
   clean_up: false
   email: serveradmin@octoblu.com
   api_key:
-    secure: hqlQnB5EFSRPGnnfmbJN7IMPiY53YUPspFxyBycHuqfG/7eHGKGyv9EKqMxnH76HsWfWbblmHvXsvXMb3IBP8SW0j9IgQtg6H7egH/tKqXVajV5v4FzH1sQvhSnhPiW7cNEE6kaKxUtDpUZQ8+Ppm/7XDYv7eTG0+rBYKBhwenQ=
+    secure: f9k+zCpc0djo6saRRcHeSCpflIPLQfSBuJSDoSWHEArLgKEf0lMT5OwH82Mq4loTNsros5j7or2A4Tqku5dhOfeCm7P/QLJp3cay9lvTub+9Xc5YYnQsTqlhLZ3W39m3ISFTaV9CKILlFqYCZCuB89KhRY0PRfpYcqHp6y2xXFw=
   on:
     tags: true
     all_branches: true

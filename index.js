@@ -101,24 +101,28 @@ var OPTIONS_SCHEMA = {
 };
 
 function Plugin(){
-  this.setOptions(DEFAULT_OPTIONS);
-  this.messageSchema = MESSAGE_SCHEMA;
-  this.optionsSchema = OPTIONS_SCHEMA;
-  this.defaultOptions = DEFAULT_OPTIONS;
-  return this;
+  debug('starting');
+  var self = this;
+  self.setOptions(DEFAULT_OPTIONS);
+  self.messageSchema = MESSAGE_SCHEMA;
+  self.optionsSchema = OPTIONS_SCHEMA;
+  self.defaultOptions = DEFAULT_OPTIONS;
+  return self;
 }
 util.inherits(Plugin, EventEmitter);
 
 Plugin.prototype.onMessage = function(message){
-  if(Myo.myos && this._myo){
+  debug('got message', message);
+  var self = this;
+  if(Myo.myos && self._myo){
     if (message.payload.command && message.payload.command.action) {
       var action = message.payload.command.action;
       if(action === 'vibrate'){
-        this._myo.vibrate(message.payload.command.vibrationLength);
+        self._myo.vibrate(message.payload.command.vibrationLength);
       } else if(action === 'requestBluetoothStrength'){
-        this._myo.requestBluetoothStrength();
+        self._myo.requestBluetoothStrength();
       } else if(action === 'zeroOrientation'){
-        this._myo.zeroOrientation();
+        self._myo.zeroOrientation();
       }
     }
   }
@@ -130,104 +134,73 @@ Plugin.prototype.onConfig = function(device){
 };
 
 Plugin.prototype.setOptions = function(options){
-  this.options = _.extend({}, DEFAULT_OPTIONS, options);
-  this.setupMyo();
+  var self = this;
+  self.options = _.extend({}, DEFAULT_OPTIONS, options);
+  self.setupMyo();
 };
 
 Plugin.prototype.setupMyo = function() {
+  debug('setting up myo');
   var self = this;
 
   var myoId = self.options.id || 0;
   var myoOptions =  {
-      api_version : 3,
-      socket_url  : "ws://127.0.0.1:10138/myo/"
+    api_version : 3,
+    socket_url  : "ws://127.0.0.1:10138/myo/",
+    app_id      : 'com.octoblu.myo'
   };
+
+  debug('creating myo with', myoId, myoOptions);
   self._myo = Myo.create(myoId, myoOptions);
 
-  var throttledEmit = _.throttle(function(){
-    debug('throttled', arguments);
-    self.emit.apply(self, arguments);
+  var throttledEmit = _.throttle(function(payload){
+    debug('throttled', payload);
+    self.emit('message', {devices: ['*'], payload: payload});
   }, self.options.interval);
 
   self._myo.on('connected', function(){
-    debug('We are connected to Myo, ', this.id);
+    debug('We are connected to Myo, ', self.id);
     self._myo.unlock();
     self._myo.vibrate('long');
-    throttledEmit('message', {
-      devices: ['*'],
-      payload: {
-        event : 'connected'
-      }
-    });
+    throttledEmit({ event: 'connected' });
   })
 
   self._myo.on('disconnected', function(){
     debug('We are disconnected from Myo');
-    throttledEmit('message', {
-      devices: ['*'],
-      payload: {
-        event : 'disconnected'
-      }
-    });
+    throttledEmit({ event: 'disconnected' });
   })
 
   self._myo.on('arm_synced', function(){
     debug('Arm Synced');
-    throttledEmit('message', {
-      devices: ['*'],
-      payload: {
-        event : 'arm_synced'
-      }
-    });
+    throttledEmit({ event: 'arm_synced' });
   });
 
   self._myo.on('arm_unsynced', function(){
     debug('Arm arm_unsynced');
-    throttledEmit('message', {
-      devices: ['*'],
-      payload: {
-        event : 'arm_unsynced'
-      }
-    });
+    throttledEmit({ event: 'arm_unsynced' });
   });
 
-  self._myo.on('lock', function(data){
+  self._myo.on('locked', function(data){
     debug('Locked Myo');
     self._myo.vibrate('short');
-    throttledEmit('message', {
-      devices: ['*'],
-      payload: data
-    });
+    throttledEmit(data);
   });
 
-  self._myo.on('unlock', function(data){
+  self._myo.on('unlocked', function(data){
     debug('Unlocked Myo');
     // self._myo.vibrate('short').vibrate('short');
-    throttledEmit('message', {
-      devices: ['*'],
-      payload: data
-    });
+    throttledEmit(data);
   });
 
   if(self.options.accelerometer.enabled){
     self._myo.on('accelerometer', function(data){
-      throttledEmit('message', {
-        devices: ['*'],
-        payload: {
-          accelerometer: data
-        }
-      });
+      throttledEmit({ accelerometer: data });
     });
   }
 
   if(self.options.gyroscope.enabled){
     self._myo.on('gyroscope', function(data){
-      throttledEmit('message', {
-        devices: ['*'],
-        payload: {
-          gyroscope: data
-        }
-      });
+      throttledEmit({ gyroscope: data });
     });
   }
 
@@ -238,23 +211,13 @@ Plugin.prototype.setupMyo = function() {
       data.x += offset.x;
       data.y += offset.y;
       data.z += offset.z;
-      throttledEmit('message', {
-        devices: ['*'],
-        payload: {
-          orientation: data
-        }
-      });
+      throttledEmit({ orientation: data });
     });
   }
 
   if(self.options.imu.enabled){
     self._myo.on('imu', function(data){
-      throttledEmit('message', {
-        devices: ['*'],
-        payload: {
-          imu: data
-        }
-      });
+      throttledEmit({ imu: data });
     });
   }
 
@@ -264,22 +227,15 @@ Plugin.prototype.setupMyo = function() {
       return;
     }
     debug('Pose', poseName, edge);
-    throttledEmit('message', {
-      devices: ['*'],
-      payload: {
-        pose : poseName,
-        edge : edge
-      }
-    });
+    throttledEmit({ pose: poseName, edge: edge });
   });
 
-  self._myo.on('bluetooth_strength', function(val){
-    throttledEmit('message', {
-      devices: ['*'],
-      payload: {
-        bluetoothStrength : val
-      }
-    });
+  self._myo.on('rssi', function(val){
+    throttledEmit({ bluetoothStrength: val });
+  });
+
+  self._myo.on('battery_level', function(val){
+    throttledEmit({ batteryLevel: val });
   });
 
 };

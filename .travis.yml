@@ -1,20 +1,36 @@
-sudo: false
 language: node_js
-cache:
-  bundler: true
-  directories:
-  - node_modules
-notifications:
-  flowdock: e7454f5285e7b9ab67009802d5560490
 node_js:
 - '0.10'
+before_install:
+  - npm install npm -g
+before_deploy:
+  - npm install ws browserify coffeeify
+  - mkdir -p deploy/meshblu-myo/latest
+  - mkdir -p deploy/meshblu-myo/$TRAVIS_TAG
+  - node_modules/.bin/browserify -t coffeeify -s Connector connector.js > deploy/meshblu-myo/latest/meshblu-myo.js
+  - gzip deploy/meshblu-myo/latest/meshblu-myo.js
+  - mv deploy/meshblu-myo/latest/meshblu-myo.js.gz deploy/meshblu-myo/latest/meshblu-myo.js
+  - cp deploy/meshblu-myo/latest/meshblu-myo.js deploy/meshblu-myo/$TRAVIS_TAG/meshblu-myo.js
 deploy:
-  provider: npm
-  skip_cleanup: true
-  clean_up: false
-  email: serveradmin@octoblu.com
-  api_key:
-    secure: f9k+zCpc0djo6saRRcHeSCpflIPLQfSBuJSDoSWHEArLgKEf0lMT5OwH82Mq4loTNsros5j7or2A4Tqku5dhOfeCm7P/QLJp3cay9lvTub+9Xc5YYnQsTqlhLZ3W39m3ISFTaV9CKILlFqYCZCuB89KhRY0PRfpYcqHp6y2xXFw=
-  on:
-    tags: true
-    all_branches: true
+  - provider: s3
+    region: us-west-2
+    skip_cleanup: true
+    detect_encoding: true
+    access_key_id: AKIAJH2D5IPIRHYJT5IA
+    secret_access_key:
+      secure: "WAwuUkxWJdNRe4ynOLD1J1+2qy++Kfhvth8FQoLzk9jH6jegNqQ65SNDYE9M3fj9LFWtYYL+huw0bEifOkD1LCV/tmkAU1u/n1u1RcIuVShw28XQR1we9rUtlFxlKU47PD2RWp+tY7Jce0JdtaiddgPd+xifyF66Qq4g0Cy8QQ4="
+    bucket: octoblu-cdn
+    local-dir: deploy
+    upload-dir: js
+    on:
+      tags: true
+      all_branches: true
+  - provider: npm
+    skip_cleanup: true
+    clean_up: false
+    email: serveradmin@octoblu.com
+    api_key:
+      secure: "E8z5M+FnkerC5u9sOTLaKZVTVIie9CL3hK2sDca/TL8RBhEhsDVZZ9VNA91URqx03qGaazXNzNbQMqQ7aCkTdQxrdKskfoEfEvUsNnlxQu9q/8Ux5NBg+Fzu4Zh8jrsD5PPI/UESVSu7kRQFB6B1IUCUh4KPRdOV0v6RjPIRucg="
+    on:
+      tags: true
+      all_branches: true

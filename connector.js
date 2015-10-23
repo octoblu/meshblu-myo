@@ -87,7 +87,7 @@ Connector.prototype.onReady = function(){
 Connector.prototype.run = function(){
   var self = this;
   self.plugin = new Plugin();
-  self.createConnection()
+  self.createConnection();
   self.plugin.on('data', function(data){
     self.emit('data.send', data);
     self.conx.data(data);

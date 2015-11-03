@@ -155,52 +155,52 @@ Plugin.prototype.setupMyo = function() {
 
   // self._myo = Myo.create(myoId, myoOptions);
 
-  var debouncedEmit = _.debounce(function(payload){
+  var throttledEmit = _.throttle(function(payload){
     debug('debounced', payload);
     self.emit('message', {devices: ['*'], payload: payload});
-  }, self.options.interval);
+  }, self.options.interval, {'leading': false});
 
   Myo.on('connected', function(data){
     self._myo = data;
     debug('We are connected to Myo, ', data);
     this.unlock();
-    debouncedEmit({ event: 'connected' });
+    throttledEmit({ event: 'connected' });
   })
 
   Myo.on('disconnected', function(){
     debug('We are disconnected from Myo');
-    debouncedEmit({ event: 'disconnected' });
+    throttledEmit({ event: 'disconnected' });
   })
 
   Myo.on('arm_synced', function(){
     debug('Arm Synced');
-    debouncedEmit({ event: 'arm_synced' });
+    throttledEmit({ event: 'arm_synced' });
   });
 
   Myo.on('arm_unsynced', function(){
     debug('Arm arm_unsynced');
-    debouncedEmit({ event: 'arm_unsynced' });
+    throttledEmit({ event: 'arm_unsynced' });
   });
 
   Myo.on('locked', function(data){
     debug('Locked Myo');
-    debouncedEmit({event: 'locked'});
+    throttledEmit({event: 'locked'});
   });
 
   Myo.on('unlocked', function(data){
     debug('Unlocked Myo');
-    debouncedEmit({event: 'unlocked'});
+    throttledEmit({event: 'unlocked'});
   });
 
   if(self.options.accelerometer.enabled){
     Myo.on('accelerometer', function(data){
-      debouncedEmit({ accelerometer: data });
+      throttledEmit({ accelerometer: data });
     });
   }
 
   if(self.options.gyroscope.enabled){
     Myo.on('gyroscope', function(data){
-      debouncedEmit({ gyroscope: data });
+      throttledEmit({ gyroscope: data });
     });
   }
 
@@ -211,13 +211,13 @@ Plugin.prototype.setupMyo = function() {
       data.x += offset.x;
       data.y += offset.y;
       data.z += offset.z;
-      debouncedEmit({ orientation: data });
+      throttledEmit({ orientation: data });
     });
   }
 
   if(self.options.imu.enabled){
     Myo.on('imu', function(data){
-      debouncedEmit({ imu: data });
+      throttledEmit({ imu: data });
     });
   }
   // Myo.on('pose', function(poseName){
@@ -231,15 +231,15 @@ Plugin.prototype.setupMyo = function() {
 
     var poseName = poseNameOff.replace("_off", "");
     debug('event', poseName);
-    debouncedEmit({ event: poseName});
+    throttledEmit({ event: poseName});
   });
 
   Myo.on('rssi', function(val){
-    debouncedEmit({ bluetoothStrength: val });
+    throttledEmit({ bluetoothStrength: val });
   });
 
   Myo.on('battery_level', function(val){
-    debouncedEmit({ batteryLevel: val });
+    throttledEmit({ batteryLevel: val });
   });
 
 };

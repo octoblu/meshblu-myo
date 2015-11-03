@@ -156,7 +156,7 @@ Plugin.prototype.setupMyo = function() {
   // self._myo = Myo.create(myoId, myoOptions);
 
   var throttledEmit = _.throttle(function(payload){
-    debug('debounced', payload);
+    debug('throttled', payload);
     self.emit('message', {devices: ['*'], payload: payload});
   }, self.options.interval, {'leading': false});
 

@@ -5,6 +5,8 @@ var _ = require('lodash');
 var Myo = require('myo');
 var debug = require('debug')('meshblu-myo:index');
 
+var isMyoConnected = false;
+
 var DEFAULT_OPTIONS = {
   id : 0,
   interval: 500,
@@ -143,6 +145,7 @@ Plugin.prototype.setupMyo = function() {
   debug('setting up myo');
   var self = this;
 
+
   var myoId = self.options.id || 0;
   Myo.defaults =  {
     api_version : 3,
@@ -151,98 +154,110 @@ Plugin.prototype.setupMyo = function() {
   };
 
   debug('creating myo with', myoId, Myo.defaults);
-  Myo.connect(Myo.defaults.app_id);
 
-  // self._myo = Myo.create(myoId, myoOptions);
+    Myo.connect(Myo.defaults.app_id);
+
+  if(!isMyoConnected){
+    isMyoConnected = true;
+    self.myoEvents();
+  }
+};
+
+Plugin.prototype.myoEvents = function(){
+
+  var self = this;
 
   var throttledEmit = _.throttle(function(payload){
     debug('throttled', payload);
-    self.emit('message', {devices: ['*'], payload: payload});
-  }, self.options.interval, {'leading': false});
+    self.emit('message', {"devices": ['*'], "payload": payload});
+   }, self.options.interval, {'leading': false});
+
 
   Myo.on('connected', function(data){
     self._myo = data;
     debug('We are connected to Myo, ', data);
     this.unlock();
-    throttledEmit({ event: 'connected' });
+    throttledEmit({ "event": 'connected' });
   })
 
   Myo.on('disconnected', function(){
     debug('We are disconnected from Myo');
-    throttledEmit({ event: 'disconnected' });
+    throttledEmit({ "event": 'disconnected' });
   })
 
   Myo.on('arm_synced', function(){
     debug('Arm Synced');
-    throttledEmit({ event: 'arm_synced' });
+    throttledEmit({ "event": 'arm_synced' });
   });
 
   Myo.on('arm_unsynced', function(){
     debug('Arm arm_unsynced');
-    throttledEmit({ event: 'arm_unsynced' });
+    throttledEmit({ "event": 'arm_unsynced' });
   });
 
   Myo.on('locked', function(data){
     debug('Locked Myo');
-    throttledEmit({event: 'locked'});
+    throttledEmit({"event": 'locked'});
   });
 
   Myo.on('unlocked', function(data){
     debug('Unlocked Myo');
-    throttledEmit({event: 'unlocked'});
+    throttledEmit({"event": 'unlocked'});
   });
 
-  if(self.options.accelerometer.enabled){
+
     Myo.on('accelerometer', function(data){
-      throttledEmit({ accelerometer: data });
+      if(self.options.accelerometer.enabled){
+      throttledEmit({ "accelerometer": data });
+      }
     });
-  }
 
-  if(self.options.gyroscope.enabled){
+
+
     Myo.on('gyroscope', function(data){
-      throttledEmit({ gyroscope: data });
+      if(self.options.gyroscope.enabled){
+      throttledEmit({ "gyroscope": data });
+     }
     });
-  }
 
-  if(self.options.orientation.enabled){
     Myo.on('orientation', function(data){
-      var offset = Myo.orientationOffset;
-      data.w += offset.w;
-      data.x += offset.x;
-      data.y += offset.y;
-      data.z += offset.z;
-      throttledEmit({ orientation: data });
-    });
-  }
+      data = {
+        offset: {
+          w: data.w,
+          x: data.x,
+          y: data.y,
+          z: data.z
+        }
+      };
 
-  if(self.options.imu.enabled){
-    Myo.on('imu', function(data){
-      throttledEmit({ imu: data });
+      if(self.options.orientation.enabled){
+      throttledEmit({ "orientation": data });
+     }
     });
-  }
-  // Myo.on('pose', function(poseName){
-  //   this.unlock();
-  //
-  //   // debug('Pose', poseName);
-  // });
+
+    Myo.on('imu', function(data){
+      if(self.options.imu.enabled){
+      throttledEmit({ "imu": data });
+     }
+    });
 
   Myo.on('pose_off', function(poseNameOff){
     this.unlock();
 
     var poseName = poseNameOff.replace("_off", "");
     debug('event', poseName);
-    throttledEmit({ event: poseName});
+    throttledEmit({ "event": poseName});
   });
 
   Myo.on('rssi', function(val){
-    throttledEmit({ bluetoothStrength: val });
+    throttledEmit({ "bluetoothStrength": val });
   });
 
   Myo.on('battery_level', function(val){
-    throttledEmit({ batteryLevel: val });
-  });
+    throttledEmit({ "batteryLevel": val });
 
 };
+
 
 module.exports = {
   messageSchema: MESSAGE_SCHEMA,

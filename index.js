@@ -255,9 +255,8 @@ Plugin.prototype.myoEvents = function(){
 
   Myo.on('battery_level', function(val){
     throttledEmit({ "batteryLevel": val });
-
-};
-
+  });
+}
 
 module.exports = {
   messageSchema: MESSAGE_SCHEMA,
